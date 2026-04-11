@@ -1,0 +1,51 @@
+- name: Remove existing app directory
+  file:
+    path: /var/www/epicbook
+    state: absent
+
+- name: Clone EpicBook repo
+  git:
+    repo: https://github.com/pravinmishraaws/theepicbook
+    dest: /var/www/epicbook
+    version: main
+
+- name: Fix ownership
+  file:
+    path: /var/www/epicbook
+    owner: azureuser
+    group: azureuser
+    recurse: yes
+
+- name: Install Node dependencies
+  npm:
+    path: /var/www/epicbook
+
+- name: Create DB config
+  copy:
+    dest: /var/www/epicbook/config/config.json
+    content: |
+      {
+        "development": {
+          "username": "{{ db_user }}",
+          "password": "{{ db_password }}",
+          "database": "{{ db_name }}",
+          "host": "127.0.0.1",
+          "dialect": "mysql"
+        }
+      }
+
+# 🔥 THIS IS THE MISSING PART (SEED DATA)
+- name: Seed database
+  shell: |
+    mysql -u {{ db_user }} -p{{ db_password }} {{ db_name }} < /var/www/epicbook/db/author_seed.sql
+    mysql -u {{ db_user }} -p{{ db_password }} {{ db_name }} < /var/www/epicbook/db/books_seed.sql
+
+- name: Stop existing PM2 app if running
+  shell: pm2 delete epicbook || true
+
+- name: Start app with PM2
+  shell: |
+    pm2 start server.js --name epicbook
+    pm2 save
+  args:
+    chdir: /var/www/epicbook

@@ -1,0 +1,10 @@
+app_name: epicbook
+app_repo: https://github.com/pravinmishraaws/theepicbook
+app_dest: /var/www/epicbook
+app_user: azureuser
+
+node_version: "18"
+
+db_name: epicbook
+db_user: epicuser
+db_password: segun

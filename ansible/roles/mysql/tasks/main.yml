@@ -1,0 +1,21 @@
+- name: Create database
+  community.mysql.mysql_db:
+    name: "{{ db_name }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create MySQL user
+  community.mysql.mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: "{{ db_name }}.*:ALL"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    UPDATE mysql.user 
+SET plugin = 'auth_socket' 
+WHERE user = 'root';
+
+FLUSH PRIVILEGES;
+
+EXIT;
