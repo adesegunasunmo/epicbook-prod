@@ -7,4 +7,4 @@ node_version: "18"
 
 db_name: epicbook
 db_user: epicuser
-db_password: segun
+db_password: <>
